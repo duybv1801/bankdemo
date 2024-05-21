@@ -1,0 +1,14 @@
+{
+    "meta-type-1": "Tài khoản ví",
+    "meta-type-2": "Tài khoản thanh toán",
+    "transaction-type-1": "Chuyển tiền tới số tài khoản",
+    "transaction-type-2": "Chuyển tiền tới số tài khoản 24/7",
+    "form-type-1": "Chuyển ngay",
+    "form-type-2": "Chuyển trong 24",
+    "status-1": "Chờ duyệt",
+    "status-2": "Đã duyệt",
+    "status-3": "Từ chối",
+    "status_class-1": "badge badge-primary",
+    "status_class-2": "badge badge-success",
+    "status_class-3": "badge badge-warning"
+}
