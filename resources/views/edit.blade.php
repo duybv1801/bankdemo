@@ -79,6 +79,7 @@
                     <form method="POST" action="{{ route('approve.update', $bill->id) }}" class="d-inline-block" id="approveForm">
                         @csrf
                         @method('PUT')
+                        <input type="hidden" name="email" value="{{ auth()->user()->email }}">
                         <input type="hidden" name="status" value="2">
                         <button type="submit" class="btn btn-success mail-btn">{{ __('Đồng ý') }}</button>
                     </form>
