@@ -10,9 +10,11 @@
             <div class="modal-body">
                 <input type="text" id="otpInput" class="form-control" placeholder="Nhập mã OTP">
                 <input type="hidden" id="token" value="{{ csrf_token() }}">
+                <input type="hidden" id="email" value="{{ auth()->user()->email }}">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary otpSubmitBtn" id="otpSubmitBtn">Xác nhận</button>
+                <button type="button" class="btn btn-success resendBtn d-inline-block mr-3">Gửi lại OTP</button>
+                <button type="button" class="btn btn-primary otpSubmitBtn d-inline-block" id="otpSubmitBtn">Xác nhận</button>
             </div>
         </div>
     </div>

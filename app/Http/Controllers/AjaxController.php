@@ -26,10 +26,11 @@ class AjaxController extends Controller
     {
         $email = $request->input('email');
         $otp = rand(100000, 999999);
+        $otpExpiry = now()->addMinutes(1);
         Log::info($otp);
         try {
             Mail::to($email)->send(new Otp($otp));
-            session(['otp' => $otp]);
+            session(['otp' => $otp, 'otp_expiry' => $otpExpiry]);
 
             return response()->json(['success' => true, 'message' => 'OTP sent successfully']);
         } catch (\Exception $e) {
@@ -41,10 +42,14 @@ class AjaxController extends Controller
     {
         Log::info('request: ' . $request->otp);
         Log::info('session:' . session('otp'));
+        $otpExpiry = session('otp_expiry');
+        if (now()->greaterThan($otpExpiry)) {
+            return response()->json(['success' => false, 'message' => 'OTP đã hết hạn, vui lòng gửi lại OTP']);
+        }
         if ($request->otp == session('otp')) {
             return response()->json(['success' => true, 'message' => 'OTP verified successfully']);
         } else {
-            return response()->json(['success' => false, 'message' => 'Invalid OTP']);
+            return response()->json(['success' => false, 'message' => 'OTP không hợp lệ']);
         }
     }
 

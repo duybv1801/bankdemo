@@ -35,6 +35,7 @@ $(document).ready(function(){
     handleFormSubmit('approveForm', 'otpPopup');
 
     var otpVerified = false;
+    var failCount = sessionStorage.getItem('failCount') ? parseInt(sessionStorage.getItem('failCount')) : 0;
 
     function sendOTP(email, token, callback) {
         $.ajax({
@@ -80,11 +81,9 @@ $(document).ready(function(){
                 var token = $('#' + formId + ' input[name="_token"]').val();
                 sendOTP(email, token, function(response) {
                     if (response.success) {
-                        var message = '<small id="message" class="text-success">Đã gửi OTP</small>';
-                        $('#message').remove();
-                        $('#otpInput').after(message);
+                        startOtpCountdown();
                     } else {
-                        var message = '<small id="message" class="text-danger">Gửi OTP thất bại, vui lòng gửi lại đơn</small>';
+                        var message = '<small id="message" class="text-danger">Gửi OTP thất bại, vui lòng gửi lại đơn. </small>';
                         $('#message').remove();
                         $('#otpSubmitBtn').remove();
                         $('#otpInput').after(message);
@@ -101,90 +100,55 @@ $(document).ready(function(){
         verifyOTP(otp, token, function(response) {
             if (response.success) {
                 otpVerified = true;
+                sessionStorage.removeItem('failCount');
                 $('#otpPopup').modal('hide');
                 $('#transactionForm').off('submit').submit();
                 $('#approveForm').off('submit').submit();
             } else {
-                var message = '<small id="message" class="text-danger">Xác thực thất bại, vui lòng thử lại</small>';
+                failCount++;
+                sessionStorage.setItem('failCount', failCount);
+                if (failCount >= 3) {
+                    sessionStorage.removeItem('failCount');
+                    window.location.href = '/';
+                    alert('Sai OTP 3 lần, thử lại sau. ');
+                } else {
+                    var message_verify = '<small id="message-2" class="text-danger">' + response.message + '. </small>';
+                    $('#message-2').remove();
+                    $('#otpInput').after(message_verify);
+                }
+            }
+        });
+    });
+
+    $('.resendBtn').click(function() {
+        var email = $('#email').val();
+        var token = $('#token').val();
+        sendOTP(email, token, function(response) {
+            if (response.success) {
+                startOtpCountdown();
+            } else {
+                var message = '<small id="message" class="text-danger">Gửi OTP thất bại, vui lòng thử lại. </small>';
                 $('#message').remove();
                 $('#otpInput').after(message);
             }
         });
     });
 
-    // let otpVerified = false;
-    //
-    // $('#transactionForm').submit(function (e) {
-    //     if (!otpVerified) {
-    //         e.preventDefault();
-    //         $('#otpPopup').modal('show');
-    //         var email = $('input[name="email"]').val();
-    //         var token = $('input[name="_token"]').val();
-    //         sendOTP(email, token, function(response) {
-    //             if (response.success) {
-    //                 var message = '<small id="message" class="text-success">Đã gửi OTP</small>';
-    //                 $('#message').remove();
-    //                 $('#otpInput').after(message);
-    //             } else {
-    //                 var message = '<small id="message" class="text-danger">Gửi OTP thất bại, vui lòng gửi lại đơn</small>';
-    //                 $('#message').remove();
-    //                 $('#otpSubmitBtn').remove();
-    //                 $('#otpInput').after(message);
-    //             }
-    //         });
-    //     }
-    // });
-    //
-    // function sendOTP(email, token, callback) {
-    //     $.ajax({
-    //         type: 'POST',
-    //         url: '/ajax/send-otp',
-    //         data: {
-    //             _token: token,
-    //             email: email,
-    //         },
-    //         success: function(response) {
-    //             callback(response);
-    //         },
-    //         error: function(xhr, status, error) {
-    //             console.error('Error sending OTP:', error);
-    //             callback({ success: false });
-    //         }
-    //     });
-    // }
-    //
-    // $('#otpSubmitBtn').click(function() {
-    //     var otp = $('#otpInput').val();
-    //     var token = $('#token').val();
-    //
-    //     verifyOTP(otp, token, function(response) {
-    //         if (response.success) {
-    //             otpVerified = true;
-    //             $('#otpPopup').modal('hide');
-    //             $('#transactionForm').off('submit').submit();
-    //         } else {
-    //             var message = '<small id="message" class="text-danger">Xác thực thất bại, vui lòng thử lại</small>';
-    //             $('#message').remove();
-    //             $('#otpInput').after(message);
-    //         }
-    //     });
-    // });
-    //
-    // function verifyOTP(otp, token, callback) {
-    //     $.ajax({
-    //         type: 'POST',
-    //         url: '/ajax/verify-otp',
-    //         data: {
-    //             otp: otp,
-    //             _token: token
-    //         },
-    //         success: function(response) {
-    //             callback(response);
-    //         },
-    //         error: function(xhr, status, error) {
-    //             callback({ success: false });
-    //         }
-    //     });
-    // }
+    function startOtpCountdown() {
+        var countdown = 60;
+        var message = '<small id="message" class="text-success">Đã gửi OTP. Thời gian hiệu lực  <span id="countdown">' + countdown + '</span> giây. </small>';
+        $('#message').remove();
+        $('#message-2').remove();
+        $('#otpInput').after(message);
+
+        var interval = setInterval(function() {
+            countdown--;
+            $('#countdown').text(countdown);
+            if (countdown <= 0) {
+                clearInterval(interval);
+                $('#message').removeClass('text-success').addClass('text-danger').text('OTP đã hết hạn, vui lòng gửi lại OTP. ');
+            }
+        }, 1000);
+    }
 });
 
