@@ -31,9 +31,9 @@ class ApproveController extends Controller
         $bill = Bill::findOrFail($id);
         $status = $request->input('status');
         $bill->status = $status;
+        $bill->approve_level = 1;
         $bill->save();
         if ($status == 2) {
-            $bill->approve_level = 1;
             $sender = UserMeta::where('accout_number', $request->sender)->first();
             $sender->surplus -= $bill->total_money;
             $receiver = UserMeta::where('accout_number', $request->receiver)->first();
