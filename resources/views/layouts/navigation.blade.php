@@ -18,12 +18,18 @@
                     <x-nav-link :href="route('query')" :active="request()->routeIs('query')">
                         {{ __('Truy vấn TK') }}
                     </x-nav-link>
+
+                    @can('create', \App\Models\Bill::class)
                     <x-nav-link :href="route('transfer.index')" :active="request()->routeIs('transfer.index')">
-                        {{ __('Chuyển tiền') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('approve.index')" :active="\Illuminate\Support\Str::startsWith(request()->route()->getName(), 'approve')">
-                        {{ __('Duyệt giao dịch') }}
-                    </x-nav-link>
+                            {{ __('Chuyển tiền') }}
+                        </x-nav-link>
+                    @endcan
+
+                    @can('update', \App\Models\Bill::class)
+                        <x-nav-link :href="route('approve.index')" :active="\Illuminate\Support\Str::startsWith(request()->route()->getName(), 'approve')">
+                            {{ __('Duyệt giao dịch') }}
+                        </x-nav-link>
+                    @endcan
                 </div>
             </div>
 

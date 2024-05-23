@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bill;
+use App\Models\UserMeta;
 use Illuminate\Http\Request;
 
 class ApproveController extends Controller
@@ -31,7 +32,16 @@ class ApproveController extends Controller
         $status = $request->input('status');
         $bill->status = $status;
         $bill->save();
-
-        return redirect()->route('approve.index')->with('success', 'Cập nhật trạng thái thành công.');
+        if ($status == 2) {
+            $bill->approve_level = 1;
+            $sender = UserMeta::where('accout_number', $request->sender)->first();
+            $sender->surplus -= $bill->total_money;
+            $receiver = UserMeta::where('accout_number', $request->receiver)->first();
+            $receiver->surplus += $bill->money;
+            $bill->save();
+            $sender->save();
+            $receiver->save();
+        }
+        return redirect()->route('approve.index')->with(['status' => 'success', 'message' => 'Duyệt thành công']);
     }
 }

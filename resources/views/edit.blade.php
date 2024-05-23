@@ -81,6 +81,11 @@
                         @method('PUT')
                         <input type="hidden" name="email" value="{{ auth()->user()->email }}">
                         <input type="hidden" name="status" value="2">
+                        <input type="hidden" name="money" value="{{ $bill->money }}">
+                        <input type="hidden" name="total_money" value="{{ $bill->total_money }}">
+                        <input type="hidden" name="sender" value="{{ $meta->accout_number }}">
+                        <input type="hidden" name="receiver" value="{{ $bill->receiver_account }}">
+
                         <button type="submit" class="btn btn-success mail-btn">{{ __('Đồng ý') }}</button>
                     </form>
                     <button class="btn btn-danger d-inline-block ml-2" data-toggle="modal" type="submit"
